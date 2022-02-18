@@ -1,0 +1,119 @@
+---
+title: 'Economic Growth and Institutions: Assignment 1'
+author: "Mathieu Van der Vel, Abdirahman Nuur and Maximilian Grotz"
+date: "14 2 2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+```{r}
+library(tidyverse)
+```
+
+
+
+# Simulation 1
+
+```{r}
+# Parameters
+s = .25
+delta = .04
+alpha = .33
+n = .03
+g = .02
+
+# Setup dataframe; 
+# y_sim1 in 2017 USD (PPP), K_sim1 in mill 2017 USD (PPP), A_sim1 in index
+L_0 = 45.0
+K_0 = 1075795.25
+A_0 = 10862.74
+
+sim1 <- data.frame(year = 2020:2100,
+                   L = L_0,
+                   K_sim1 = K_0,
+                   A_sim1 = A_0,
+                   yhat_sim1 = NA,
+                   Y_sim1 = K_0^alpha*(A_0*L_0)^(1-alpha),
+                   y_sim1 = K_0^alpha*(A_0*L_0)^(1-alpha)/L_0)
+
+# Start calculating values
+sim1 <- sim1 %>%
+  mutate(L = L_0*exp(n*(year-2020)), 
+         A_sim1 = A_0*exp(g*(year-2020)))
+
+for (i in 2:nrow(sim1)) {
+  sim1$K_sim1[i] <- (1-delta)*sim1$K_sim1[i-1] + s*sim1$Y_sim1[i-1]
+  sim1$Y_sim1[i] <- sim1$K_sim1[i]^alpha*(sim1$L[i]*sim1$A_sim1[i])^(1-alpha)
+  sim1$y_sim1[i] <- sim1$Y_sim1[i]/sim1$L[i]
+  sim1$yhat_sim1[i] <- (sim1$y_sim1[i]-sim1$y_sim1[i-1])/sim1$y_sim1[i-1]
+}
+```
+
+
+
+# Simulation 2
+
+𝜃 is an element (0,1)
+now 𝐴(𝑡 + 1) = 𝐴(𝑡)𝑒𝑔[1 ― 𝑊(𝑡 + 1)𝜃].
+First, we need to find the probability of the event happening. This probability is from a bernouli distribution.
+
+We 
+
+```{r}
+library(Rlab)
+pi <- 0.05
+theta <- 0.05
+occur_or_not<- c(0)
+max_baby <- c()
+year <- c(2020:2100)
+
+for(i in 1:1000000){
+set.seed(i)
+for(z in 2:nrow(sim1)){
+occur_or_not[z] <- rbern(1, .05)
+}
+max_baby[i] <- sum(occur_or_not)
+}
+which(max_baby==max(max_baby))
+max_baby[815712]
+
+#so we will use seed 157753
+
+set.seed(815712)
+for(i in 1:nrow(sim1)){
+ occur_or_not[i] <- rbern(1, .05)
+}
+
+
+occur_or_not
+sum(occur_or_not)
+
+
+sim2 <- data.frame(year = 2020:2100,
+                   occur_or_not,
+                   L = L_0,
+                   K_sim2 = K_0,
+                   A_sim2 = A_0*exp(g*(year-2020)*(1-occur_or_not*theta)),
+                   yhat_sim2 = NA)
+
+sim2 <- sim2 %>%
+  mutate(L = L_0*exp(n*(year-2020)))
+
+sim2 <- sim2 %>%
+  mutate( Y_sim2 = K_0^alpha*(A_sim2*L_0)^(1-alpha),
+                   y_sim2 = K_0^alpha*(A_sim2*L_0)^(1-alpha)/L_0)
+
+
+for (i in 2:nrow(sim2)) {
+  sim2$K_sim2[i] <- (1-delta)*sim2$K_sim2[i-1] + s*sim2$Y_sim2[i-1]
+  sim2$Y_sim2[i] <- sim2$K_sim2[i]^alpha*(sim2$L[i]*sim2$A_sim2[i])^(1-alpha)
+  sim2$y_sim2[i] <- sim2$Y_sim2[i]/sim2$L[i]
+  sim2$yhat_sim2[i] <- (sim2$y_sim2[i]-sim2$y_sim2[i-1])/sim2$y_sim2[i-1]
+  }
+```
+
