@@ -4,152 +4,72 @@ author: "A.Nuur"
 date: "2/16/2022"
 output: html_document
 ---
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-# The assignment
-
-##The Basics
-Here we will write down the main paramters, and equations
+packages
 ```{r}
-library(ggplot2)
-library(tidyverse)
-library(readxl)
-
-
-
+library(ggplot2); library(tidyverse); library(readxl)
 ```
-
-Now, the main paratmers
+Parameters
 ```{r}
-#investment rate
-s <- 0.25
-# Population growth rate
+#Parameter
+s<- 0.25
 n <- 0.03
-#elasticity of output to physical capital
 alpha <- 0.33
-#dpreciation rate of physical capital
 dep_rate <- 0.04
-#Rate of Technological progress
 g <- 0.02
+
 ```
-Now, the initial values
+Initial values
 ```{r}
-#Initial labor 
+#Initial values
 L0 <- 45.00
-#Initial physical capital
 K0 <- 1075795.25
 k0 <- K0/L0
-# Initial Technology level
 A0 <- 10862.74
-
-#Initial Output
 Y0 <- K0^(alpha) * (A0*L0)^(1-alpha)
-#Initial output per capita
-y0 <- Y0 / L0
+year <- seq(2020, 2100, 1)
+period <- 1:81 
 ```
-
-Some of the formula
-Year, and time period
+Step1 calculate population and technology level
 ```{r}
-year <- seq(2020, 2100, by= 1)
-
-period <- seq(0,80,1)
-period
-
-
-
-```
-The population size
-```{r}
+#Population, L
 L <- rep(NA, 81)
+A <- rep(NA, 81)
 L[1]<- L0
-for(i in 2:81){
-  L[i]<-  L[i-1]* exp(n)
-}
-L
-```
-Technology leve 
-```{r}
-A<- rep(NA, 81)
 A[1]<- A0
 for(i in 2:81){
-  A[i]<-  A[i-1]* exp(g)
+  L[i]<- L[i-1]*exp(n)
+  A[i]<- A[i-1]*exp(g)
 }
+
 A
 ```
-
-The eqautions for Tottal physical cpital, then gdpPercap, then Total GDP, then Total physical capital, and repeat
-
-I will combine them all within a for loop
-
+Step2 calculate physical capital, physical cpaital per worker, then gdpPercap
 ```{r}
-# Empty lists in order
 K <- rep(NA, 81)
-K[1] <- K0
-
-y <- rep(NA, 81)
-y[1] <- y0
-
-
-Y <- rep(NA, 81)
-Y[1] <- Y0
-
 k <- rep(NA, 81)
-k[1] <- k0
-```
+Y <- rep(NA, 81)
+y<- rep(NA, 81)
+y_growth <- rep(NA, 81)
+K[1]<- K0
+k[1]<- k0
+Y[1]<- Y0
+y[1]<- (Y0/L0)
+y_growth[1 ]<- (y[2]- y[1]) / y[1]
 
-
-Now the for loop for the three
-```{r}
 for(i in 2:81){
-  K[i] <- s*Y[i-1] + K[i-1]*(1-dep_rate)
-  k[i] <- K[i]/ L[i]
-  y[i]<- K[i]/L[i]
-  Y[i] <- y[i]*L[i]
-
-  
+  K[i]<- (1-dep_rate)*K[i-1] + s*Y[i-1]
+  Y[i] <- K[i]^(alpha) * (A[i]*L[i])^(1-alpha)
+  k[i] <- (K[i]/L[i])
+  y[i] <- (Y[i])/ L[i]
+  y_growth[i] <- (y[i] -y[i-1]) / y[i-1] 
 }
+plot.ts(y_growth)
+#Period is fishy
+
 
 ```
-
-Now, I will compute the year-to-year growth rate of gdpPercapita
+dataframe 
 ```{r}
-y_growth_rate <- rep(NA, 81)
-y_growth_rate[1] <-( 25691.03-14092.56)/14092.56
-
-
-for(i in 1:81){
-  y_growth_rate[i] <- (y[i+1]-  y[i]) / y[i]
-}
-y_growth_rate_rounded <- round(y_growth_rate, 3)
-y_growth_rate_rounded
+sim_1 <- data.frame(year, period, A, L,K, Y, y_growth)
 ```
-The dataframe 
-```{r}
-sim_1 <- data.frame(year, period, L, A, K,k, y, Y, y_growth_rate, y_growth_rate_rounded)
-sim_1
-```
-
-####################
-#A) line chart of the growth rate of GDP per capita
-```{r}
-ggplot(sim_1, aes(x= year, y= y_growth_rate_rounded))+
-  geom_line()+
-  theme_bw()
-```
-
-#b) The GDP per capita in 2020 is below 
-
-I will try to plot the solow model
-
-first, to see if we got k right
-```{r}
-plot.ts(k)
-```
-
-
-
 
