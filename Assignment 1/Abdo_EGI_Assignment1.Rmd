@@ -65,11 +65,30 @@ for(i in 2:81){
 }
 plot.ts(y_growth)
 #Period is fishy
-
+k <- K/L
 
 ```
 dataframe 
 ```{r}
-sim_1 <- data.frame(year, period, A, L,K, Y, y_growth)
+sim_1 <- data.frame(Year= year, Period= period, tech= round(A,3), Labor= round(L,3),Kapital= round(K,3), small_k = round(k,39), GDP= round(Y,3),y_hat = round(y_growth,3))
 ```
+######
+A) Present a line chart of the growth rate of GDP per capita, computed in the previous step, as a function of time for the 2020-2100 period.
+```{r}
+ggplot()+ 
+  geom_line(sim_1, mapping= aes(x= Year,y_hat ))+
+ geom_hline(yintercept = 0.020, color= "red")+
+  
+  theme_bw()
+```
+
+B) Based on the figure, is GDP per capita in 2020 below or above its steady state level. Justify your answer by explicitly referring to how the growth rate GDP per capita evolves over time. Approximately, in which year does the economy reach the steady state?
+
+Year 2082. I will prove it by labelling. 
+
+
+
+
+
+
 
