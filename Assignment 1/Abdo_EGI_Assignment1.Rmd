@@ -86,9 +86,73 @@ B) Based on the figure, is GDP per capita in 2020 below or above its steady stat
 
 Year 2082. I will prove it by labelling. 
 
+#########3
+#Simulation 2
+##Part1: ex-post, with estimated A
+It's a bern distribution
+```{r}
+library(Rlab)
+#I need to cacluate the probability of each year, then calculate Expected tech level
+#paramter of negative productivity shock
+
+#w can only be achieved by simulation
+w <- rbinom(length(2020:2100),1, prob= 0.05)
+theta <- 0.05
 
 
+```
 
+Pop, A
+```{r}
+#Population, L
+L_sim2 <- rep(NA, 81)
+A_sim2 <- rep(NA, 81)
+L_sim2[1]<- L0
+A_sim2[1]<- A0
+for(i in 2:81){
+  L_sim2 [i]<- L_sim2[i-1]*exp(n)
+  A_sim2[i]<- A_sim2[i-1]*exp(g)*(1-(w[i])*theta)
+ }
+
+```
+
+The rest
+```{r}
+K_sim2 <- rep(NA, 81)
+k_sim2 <- rep(NA, 81)
+Y_sim2 <- rep(NA, 81)
+y_sim2<- rep(NA, 81)
+y_growth_sim2 <- rep(NA, 81)
+K_sim2[1]<- K0
+k_sim2[1]<- k0
+Y_sim2[1]<- Y0
+y_sim2[1]<- (Y0/L0)
+y_growth_sim2[1 ]<- (y_sim2[2]- y_sim2[1]) / y_sim2[1]
+
+for(i in 2:81){
+  K_sim2[i]<- (1-dep_rate)*K_sim2[i-1] + s*Y_sim2[i-1]
+  Y_sim2[i] <- K_sim2[i]^(alpha) * (A_sim2[i]*L_sim2[i])^(1-alpha)
+  k_sim2[i] <- (K_sim2[i]/L_sim2[i])
+  y_sim2[i] <- (Y_sim2[i])/ L_sim2[i]
+  y_growth_sim2[i] <- (y_sim2[i] -y_sim2[i-1]) / y_sim2[i-1] 
+}
+test_sim2 <- data.frame(Year= year, Period= period, tech= A_sim2, Labor= L_sim2,Kapital= K_sim2, small_k = k_sim2, W=w, GDP= Y_sim2,gdpPercap= y_sim2, y_hat = y_growth_sim2)
+```
+c) I will add a
+```{r}
+ggplot()+
+  geom_line(test_sim2, mapping= aes(Year,gdpPercap ))+
+  
+  geom_point()+
+  theme_bw()
+```
+
+d)List the years for which there is an extreme weather event according to your simulation.
+```{r}
+test_sim2[which(test_sim2$y_hat <0), "Year"]
+
+```
+########3
 
 
 
