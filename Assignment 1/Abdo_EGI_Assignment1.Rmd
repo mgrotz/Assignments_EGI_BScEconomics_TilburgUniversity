@@ -2,8 +2,21 @@
 title: "EGI Simulations"
 author: "A.Nuur"
 date: "2/16/2022"
-output: html_document
+output: 
+  html_document:
+    theme: cosmo
+    highlight: monochrome
+    toc: true
+    toc_float: true
+    toc_depth: 4
 ---
+# EGI Assginment 1: 
+In this code, you can find all the code that I did (with the help of Max's, Mathieu's, and Google's help). I covered three simulations. The **second simulation** is not complete for Mathieu's...unless Max forgot to push it into Github. **Sim2** asked for forecasted and random realisation data.
+
+I just realised that this is the first round, smh! Anyways, I haven't answered all the thoertical parts of sim3 yet.  For sim4, I could not do it since I haven't properly studied it yet. Anyways, please feel free to change the code if need be. I'm also always happy to receive feedback, no matter how harsh it might look.  
+
+Sidenote: I'm still playing around with the table of contents(toc), it's a work in progress. 
+
 packages
 ```{r}
 library(ggplot2); library(tidyverse); library(readxl)
@@ -29,7 +42,9 @@ Y0 <- K0^(alpha) * (A0*L0)^(1-alpha)
 year <- seq(2020, 2100, 1)
 period <- 1:81 
 ```
-Step1 calculate population and technology level
+
+## Sim1
+### Step1 calculate population and technology level
 ```{r}
 #Population, L
 L <- rep(NA, 81)
@@ -41,9 +56,9 @@ for(i in 2:81){
   A[i]<- A[i-1]*exp(g)
 }
 
-A
+
 ```
-Step2 calculate physical capital, physical cpaital per worker, then gdpPercap
+## Step2 calculate physical capital, physical cpaital per worker, then gdpPercap
 ```{r}
 K <- rep(NA, 81)
 k <- rep(NA, 81)
@@ -68,27 +83,68 @@ plot.ts(y_growth)
 k <- K/L
 
 ```
-dataframe 
+###dataframe 
 ```{r}
-sim_1 <- data.frame(Year= year, Period= period, tech= round(A,3), Labor= round(L,3),Kapital= round(K,3), small_k = round(k,39), GDP= round(Y,3),y_hat = round(y_growth,3))
+sim_1 <- data.frame(Year= year, Period= period, tech= round(A,3), Labor= round(L,3),Kapital= round(K,3), small_k = round(k,39), GDP= round(Y,3), gdpPercap= y,y_hat = round(y_growth,3))
 ```
-######
 A) Present a line chart of the growth rate of GDP per capita, computed in the previous step, as a function of time for the 2020-2100 period.
 ```{r}
 ggplot()+ 
   geom_line(sim_1, mapping= aes(x= Year,y_hat ))+
- geom_hline(yintercept = 0.020, color= "red")+
+ geom_hline(yintercept = 0.020, color= "red", alpha= 0.3)+
   
-  theme_bw()
+  theme_bw()+ 
+  labs(y= "THe growth rate of GDP per capita", title = "Question A")
+
+
 ```
 
 B) Based on the figure, is GDP per capita in 2020 below or above its steady state level. Justify your answer by explicitly referring to how the growth rate GDP per capita evolves over time. Approximately, in which year does the economy reach the steady state?
 
 Year 2082. I will prove it by labelling. 
 
-#########3
-#Simulation 2
-##Part1: ex-post, with estimated A
+
+###################
+##Sim2
+
+###Step1: The ex-ante: the forecast
+
+
+####Calculating forecasted A
+```{r}
+theta <- 0.05
+prob_sim2 <- 0.05
+#Population, L
+L_sim2 <- L0*exp(n*(year-2020))
+#Forecasted Tech
+A_sim2_ex<-  A0*exp(g*(year-2020))* (1- (theta* prob_sim2))^(year - 2020)
+
+
+# The rest
+K_sim2_ex <- rep(NA, 81)
+k_sim2_ex <- rep(NA, 81)
+Y_sim2_ex <- rep(NA, 81)
+y_sim2_ex<- rep(NA, 81)
+y_growth_sim2_ex <- rep(NA, 81)
+K_sim2_ex[1]<- K0
+k_sim2_ex[1]<- k0
+Y_sim2_ex[1]<- Y0
+y_sim2_ex[1]<- (Y0/L0)
+y_growth_sim2_ex[1 ]<- (y_sim2_ex[2]- y_sim2_ex[1]) / y_sim2_ex[1]
+
+for(i in 2:81){
+  K_sim2_ex[i]<- (1-dep_rate)*K_sim2_ex[i-1] + s*Y_sim2_ex[i-1]
+  Y_sim2_ex[i] <- K_sim2_ex[i]^(alpha) * (A_sim2_ex[i]*L_sim2[i])^(1-alpha)
+  k_sim2_ex[i] <- (K_sim2_ex[i]/L_sim2[i])
+  y_sim2_ex[i] <- (Y_sim2_ex[i])/ L_sim2[i]
+  y_growth_sim2_ex[i] <- (y_sim2_ex[i] -y_sim2_ex[i-1]) / y_sim2_ex[i-1] 
+}
+#The dataframe
+sim2_ex <- data.frame(Year= year, Period= period, theta= theta, prob= prob_sim2, tech_ex= A_sim2_ex, Labor= L_sim2,Kapital_ex= K_sim2_ex, small_k_ex = k_sim2_ex, GDP_ex= Y_sim2_ex,gdpPercap_ex= y_sim2_ex, y_hat_ex = y_growth_sim2_ex)
+
+```
+
+###Step2: ex-post. Random realisations
 It's a bern distribution
 ```{r}
 library(Rlab)
@@ -96,63 +152,218 @@ library(Rlab)
 #paramter of negative productivity shock
 
 #w can only be achieved by simulation
-w <- rbinom(length(2020:2100),1, prob= 0.05)
+w_sim2 <- rbinom(length(2020:2100),1, prob= 0.05)
 theta <- 0.05
 
 
 ```
-
 Pop, A
 ```{r}
 #Population, L
-L_sim2 <- rep(NA, 81)
-A_sim2 <- rep(NA, 81)
-L_sim2[1]<- L0
-A_sim2[1]<- A0
+L_sim2
+A_sim2_post <- rep(NA, 81)
+A_sim2_post[1]<- A0
 for(i in 2:81){
-  L_sim2 [i]<- L_sim2[i-1]*exp(n)
-  A_sim2[i]<- A_sim2[i-1]*exp(g)*(1-(w[i])*theta)
+  A_sim2_post[i]<- A_sim2_post[i-1]*exp(g)*(1-((w_sim2[i])*theta))
  }
 
-```
 
-The rest
-```{r}
-K_sim2 <- rep(NA, 81)
-k_sim2 <- rep(NA, 81)
-Y_sim2 <- rep(NA, 81)
-y_sim2<- rep(NA, 81)
-y_growth_sim2 <- rep(NA, 81)
-K_sim2[1]<- K0
-k_sim2[1]<- k0
-Y_sim2[1]<- Y0
-y_sim2[1]<- (Y0/L0)
-y_growth_sim2[1 ]<- (y_sim2[2]- y_sim2[1]) / y_sim2[1]
+# The rest
+K_sim2_post <- rep(NA, 81)
+k_sim2_post <- rep(NA, 81)
+Y_sim2_post <- rep(NA, 81)
+y_sim2_post<- rep(NA, 81)
+y_growth_sim2_post <- rep(NA, 81)
+K_sim2_post[1]<- K0
+k_sim2_post[1]<- k0
+Y_sim2_post[1]<- Y0
+y_sim2_post[1]<- (Y0/L0)
+y_growth_sim2_post[1 ]<- (y_sim2_post[2]- y_sim2_post[1]) / y_sim2_post[1]
 
 for(i in 2:81){
-  K_sim2[i]<- (1-dep_rate)*K_sim2[i-1] + s*Y_sim2[i-1]
-  Y_sim2[i] <- K_sim2[i]^(alpha) * (A_sim2[i]*L_sim2[i])^(1-alpha)
-  k_sim2[i] <- (K_sim2[i]/L_sim2[i])
-  y_sim2[i] <- (Y_sim2[i])/ L_sim2[i]
-  y_growth_sim2[i] <- (y_sim2[i] -y_sim2[i-1]) / y_sim2[i-1] 
+  K_sim2_post[i]<- (1-dep_rate)*K_sim2_post[i-1] + s*Y_sim2_post[i-1]
+  Y_sim2_post[i] <- K_sim2_post[i]^(alpha) * (A_sim2_post[i]*L_sim2[i])^(1-alpha)
+  k_sim2_post[i] <- (K_sim2_post[i]/L_sim2[i])
+  y_sim2_post[i] <- (Y_sim2_post[i])/ L_sim2[i]
+  y_growth_sim2_post[i] <- (y_sim2_post[i] -y_sim2_post[i-1]) / y_sim2_post[i-1] 
 }
-test_sim2 <- data.frame(Year= year, Period= period, tech= A_sim2, Labor= L_sim2,Kapital= K_sim2, small_k = k_sim2, W=w, GDP= Y_sim2,gdpPercap= y_sim2, y_hat = y_growth_sim2)
+
 ```
-c) I will add a
+####The dataframe
+```{r}
+sim2_post <- data.frame(Year= year, Period= period,  W=w_sim2,tech_post= A_sim2_post, Labor= L_sim2,Kapital_post= K_sim2_post, small_k_post = k_sim2_post, GDP_post= Y_sim2_post,gdpPercap_post= y_sim2_post, y_hat_post = y_growth_sim2_post)
+```
+
+d) ] List the years for which there is an extreme weather event according to your simulation.
+```{r}
+sim2_post[which(sim2_post$y_hat <0), "Year"]
+```
+
+For clairty: To see the gdpPcap growth rate over time. 
+```{r}
+ggplot(sim2_ex, mapping= aes(Year,y_hat_ex ))+
+  geom_line()+
+  geom_hline(yintercept = 0.020, color= "red", alpha= 0.5)
+
+ggplot(sim2_post, mapping= aes(Year,y_hat_post ))+
+  geom_line()+
+  geom_hline(yintercept = 0.020, color= "red", alpha= 0.5)
+```
+
+
+
+
+
+## Third simulation 
+creating a seq of the probs
+```{r}
+#For ex-ante
+prob_sim3 <- rep(NA, 81)
+prob_sim3[1:31] <- seq( 0.050,0.20, by=0.005)
+prob_sim3[32:81] <- 0.20
+
+theta_sim3 <- 0.05
+
+
+```
+
+###Step1: Ex-ante
+####Calculating forecasted A
+```{r}
+theta <- 0.05
+prob_sim3
+#Population, L
+L_sim3 <- L0*exp(n*(year-2020))
+#Forecasted Tech
+A_sim3_ex<-  A0*exp(g*(year-2020))* (1- (theta* prob_sim3))^(year - 2020)
+
+
+# The rest
+K_sim3_ex <- rep(NA, 81)
+k_sim3_ex <- rep(NA, 81)
+Y_sim3_ex <- rep(NA, 81)
+y_sim3_ex<- rep(NA, 81)
+y_growth_sim3_ex <- rep(NA, 81)
+K_sim3_ex[1]<- K0
+k_sim3_ex[1]<- k0
+Y_sim3_ex[1]<- Y0
+y_sim3_ex[1]<- (Y0/L0)
+y_growth_sim3_ex[1 ]<- (y_sim3_ex[2]- y_sim3_ex[1]) / y_sim3_ex[1]
+
+for(i in 2:81){
+  K_sim3_ex[i]<- (1-dep_rate)*K_sim3_ex[i-1] + s*Y_sim3_ex[i-1]
+  Y_sim3_ex[i] <- K_sim3_ex[i]^(alpha) * (A_sim3_ex[i]*L_sim3[i])^(1-alpha)
+  k_sim3_ex[i] <- (K_sim3_ex[i]/L_sim3[i])
+  y_sim3_ex[i] <- (Y_sim3_ex[i])/ L_sim3[i]
+  y_growth_sim3_ex[i] <- (y_sim3_ex[i] -y_sim3_ex[i-1]) / y_sim3_ex[i-1] 
+}
+
+
+```
+####Dataframe
+```{r}
+sim3_ex <- data.frame(Year= year, Period= period, theta= theta, prob= prob_sim3, tech_ex= A_sim3_ex, Labor= L_sim3,Kapital_ex= K_sim3_ex, small_k_ex = k_sim3_ex, GDP_ex= Y_sim3_ex,gdpPercap_ex= y_sim3_ex, y_hat_ex = y_growth_sim3_ex)
+```
+
+
+###PLOT THEM OUT
+Will do inshallah...
+
+###Step2: Ex- post. Random realisations
+It's a bern distribution
+```{r}
+library(Rlab)
+#I need to cacluate the probability of each year, then calculate Expected tech level
+#paramter of negative productivity shock
+
+#w can only be achieved by simulation
+#For ex-post
+w_sim3 <- rbinom(length(2020:2100),1, prob= prob_sim3)
+table(w_sim3)
+
+
+```
+Pop, A
+```{r}
+#Population, L
+L_sim3
+A_sim3_post <- rep(NA, 81)
+A_sim3_post[1]<- A0
+for(i in 2:81){
+  A_sim3_post[i]<- A_sim3_post[i-1]*exp(g)*(1-((w_sim3[i])*theta))
+}
+# The rest
+
+K_sim3_post <- rep(NA, 81)
+k_sim3_post <- rep(NA, 81)
+Y_sim3_post <- rep(NA, 81)
+y_sim3_post<- rep(NA, 81)
+y_growth_sim3_post <- rep(NA, 81)
+K_sim3_post[1]<- K0
+k_sim3_post[1]<- k0
+Y_sim3_post[1]<- Y0
+y_sim3_post[1]<- (Y0/L0)
+y_growth_sim3_post[1 ]<- (y_sim3_post[2]- y_sim3_post[1]) / y_sim3_post[1]
+
+for(i in 2:81){
+  K_sim3_post[i]<- (1-dep_rate)*K_sim3_post[i-1] + s*Y_sim3_post[i-1]
+  Y_sim3_post[i] <- K_sim3_post[i]^(alpha) * (A_sim3_post[i]*L_sim3[i])^(1-alpha)
+  k_sim3_post[i] <- (K_sim3_post[i]/L_sim3[i])
+  y_sim3_post[i] <- (Y_sim3_post[i])/ L_sim3[i]
+  y_growth_sim3_post[i] <- (y_sim3_post[i] -y_sim3_post[i-1]) / y_sim3_post[i-1] 
+}
+
+```
+####Dataframe
+```{r}
+sim3_post <- data.frame(Year= year, Period= period,  W=w_sim3,tech_post= A_sim3_post, Labor= L_sim3,Kapital_post= K_sim3_post, small_k_post = k_sim3_post, GDP_post= Y_sim3_post,gdpPercap_post= y_sim3_post, y_hat_post = y_growth_sim3_post)
+```
+
+
+
+Visualisation of sim3
+```{r}
+ggplot(sim3_ex, mapping= aes(Year,y_hat_ex ))+
+  geom_line()+
+  geom_hline(yintercept = 0.020, color= "red")+
+  labs(title= "forecasted y_hat")
+# You can see that y_hat hits negative at times. but eventually it return to a bit below 0.02
+ggplot(sim3_post, mapping= aes(Year,y_hat_post ))+
+  geom_line()+
+  geom_hline(yintercept = 0.020, color= "red")+
+  labs(title= "Ex-post: random realisation of y_hat")
+
+```
+h)List the years for which there is an extreme weather event according to your simulation.
+
+```{r}
+table(w_sim3)
+```
+
+## i) The big plot!! I will label the graph. I promise!
+Then I will answer the questions
+
 ```{r}
 ggplot()+
-  geom_line(test_sim2, mapping= aes(Year,gdpPercap ))+
   
-  geom_point()+
-  theme_bw()
+  #sim1 GDP per capita under simulation 
+  #Use a black line for simulation 1
+  geom_line(sim_1, mapping= aes(x= Year, y=gdpPercap))+ 
+  #the expected GDP per capita computed under simulations 2 and 3
+  #dot-dashed lines for the expected GDP per capita;
+  geom_line(sim2_ex, mapping= aes(x= Year, y=gdpPercap_ex), color="blue", linetype= "dotdash", alpha= 0.9)+
+ geom_line(sim3_ex, mapping=  aes(x= Year, y=gdpPercap_ex), color="red", linetype= "dotdash", alpha= 0.9 )+
+  #Random realisations plots
+  geom_line(data= sim2_post, mapping= aes(x= Year, y=gdpPercap_post), color="blue", linetype= 1)+
+  geom_line(data= sim3_post, mapping= aes(x= Year, y=gdpPercap_post), color="red")+
+  expand_limits(y=0)+
+  scale_y_log10()
+  
+  
 ```
 
-d)List the years for which there is an extreme weather event according to your simulation.
-```{r}
-test_sim2[which(test_sim2$y_hat <0), "Year"]
 
-```
-########3
+So, this is all the code needed this far here. At least for R1. In God We Trust!
 
 
 
