@@ -15,9 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
 
-
-
-# Simulation 1
+# Introduction
 
 ```{r}
 # Parameters
@@ -27,12 +25,15 @@ alpha = .33
 n = .03
 g = .02
 
-# Setup dataframe; 
 # y_sim1 in 2017 USD (PPP), K_sim1 in mill 2017 USD (PPP), A_sim1 in index
 L_0 = 45.0
 K_0 = 1075795.25
 A_0 = 10862.74
+```
 
+# Simulation 1
+
+```{r}
 sim1 <- data.frame(year = 2020:2100,
                    L = L_0,
                    K_sim1 = K_0,
@@ -43,15 +44,18 @@ sim1 <- data.frame(year = 2020:2100,
 
 # Start calculating values
 sim1 <- sim1 %>%
-  mutate(L = L_0*exp(n*(year-2020)), 
-         A_sim1 = A_0*exp(g*(year-2020)))
+  mutate(L = L_0*exp(n*(year-2020)))
 
 for (i in 2:nrow(sim1)) {
+  sim1$A_sim1[i] <- sim1$A_sim1[i-1]*exp(g)
   sim1$K_sim1[i] <- (1-delta)*sim1$K_sim1[i-1] + s*sim1$Y_sim1[i-1]
   sim1$Y_sim1[i] <- sim1$K_sim1[i]^alpha*(sim1$L[i]*sim1$A_sim1[i])^(1-alpha)
   sim1$y_sim1[i] <- sim1$Y_sim1[i]/sim1$L[i]
   sim1$yhat_sim1[i] <- (sim1$y_sim1[i]-sim1$y_sim1[i-1])/sim1$y_sim1[i-1]
 }
+
+ggplot(data = sim1, aes(x = year, y = yhat_sim1)) +
+  geom_line()
 ```
 
 # Simulation 2
@@ -60,38 +64,64 @@ for (i in 2:nrow(sim1)) {
 now 𝐴(𝑡 + 1) = 𝐴(𝑡)𝑒𝑔[1 ― 𝑊(𝑡 + 1)𝜃].
 First, we need to find the probability of the event happening. This probability is from a bernouli distribution.
 ```{r}
-library(Rlab)
+set.seed(420)
 pi <- 0.05
 theta <- 0.05
-occur_or_not<- c(0)
-max_baby <- c()
 year <- c(2020:2100)
-W <- rbern(length(year), .05)
+W <- as.integer(lapply(runif(length(year)), function(x) ifelse(x<pi, 1, 0)))
 
-sim2 <- data.frame(year = 2020:2100,
+
+### Expected [E] ###
+
+sim2_E <- data.frame(year = 2020:2100,
+                   W = W,
+                   L = L_0,
+                   K_sim2 = K_0,
+                   A_sim2 = A_0,
+                   yhat_sim2 = NA, 
+                   pi = pi)
+
+sim2_E <- sim2_E %>%
+  mutate(L = L_0*exp(n*(year-2020)))
+
+sim2_E <- sim2_E %>%
+  mutate(Y_sim2 = K_0^alpha*(A_sim2*L_0)^(1-alpha),
+                   y_sim2 = K_0^alpha*(A_sim2*L_0)^(1-alpha)/L_0)
+
+for (i in 2:nrow(sim2_E)) {
+  sim2_E$A_sim2[i] <- sim2_E$A_sim2[i-1]*exp(g)*(1-sim2_E$pi[i]*theta)
+  sim2_E$K_sim2[i] <- (1-delta)*sim2_E$K_sim2[i-1] + s*sim2_E$Y_sim2[i-1]
+  sim2_E$Y_sim2[i] <- sim2_E$K_sim2[i]^alpha*(sim2_E$L[i]*sim2_E$A_sim2[i])^(1-alpha)
+  sim2_E$y_sim2[i] <- sim2_E$Y_sim2[i]/sim2_E$L[i]
+  sim2_E$yhat_sim2[i] <- (sim2_E$y_sim2[i]-sim2_E$y_sim2[i-1])/sim2_E$y_sim2[i-1]
+}
+
+
+### Random realisation [RR] ###
+
+sim2_RR <- data.frame(year = 2020:2100,
                    W = W,
                    L = L_0,
                    K_sim2 = K_0,
                    A_sim2 = A_0,
                    yhat_sim2 = NA)
 
-sim2 <- sim2 %>%
+sim2_RR <- sim2_RR %>%
   mutate(L = L_0*exp(n*(year-2020)))
 
-sim2 <- sim2 %>%
+sim2_RR <- sim2_RR %>%
   mutate( Y_sim2 = K_0^alpha*(A_sim2*L_0)^(1-alpha),
                    y_sim2 = K_0^alpha*(A_sim2*L_0)^(1-alpha)/L_0)
 
 
-for (i in 2:nrow(sim2)) {
-  sim2$A_sim2[i] <- sim2$A_sim2[i-1]*exp(g)*(1-W[i]*theta)
-  sim2$K_sim2[i] <- (1-delta)*sim2$K_sim2[i-1] + s*sim2$Y_sim2[i-1]
-  sim2$Y_sim2[i] <- sim2$K_sim2[i]^alpha*(sim2$L[i]*sim2$A_sim2[i])^(1-alpha)
-  sim2$y_sim2[i] <- sim2$Y_sim2[i]/sim2$L[i]
-  sim2$yhat_sim2[i] <- (sim2$y_sim2[i]-sim2$y_sim2[i-1])/sim2$y_sim2[i-1]
+for (i in 2:nrow(sim2_RR)) {
+  sim2_RR$A_sim2[i] <- sim2_RR$A_sim2[i-1]*exp(g)*(1-sim2_RR$W[i]*theta)
+  sim2_RR$K_sim2[i] <- (1-delta)*sim2_RR$K_sim2[i-1] + s*sim2_RR$Y_sim2[i-1]
+  sim2_RR$Y_sim2[i] <- sim2_RR$K_sim2[i]^alpha*(sim2_RR$L[i]*sim2_RR$A_sim2[i])^(1-alpha)
+  sim2_RR$y_sim2[i] <- sim2_RR$Y_sim2[i]/sim2_RR$L[i]
+  sim2_RR$yhat_sim2[i] <- (sim2_RR$y_sim2[i]-sim2_RR$y_sim2[i-1])/sim2_RR$y_sim2[i-1]
 }
 
-plot(sim2$year, sim2$y_sim2)
 ```
 
 # Simulation 3
