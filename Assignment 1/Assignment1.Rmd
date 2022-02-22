@@ -32,7 +32,7 @@ A_0 = 10862.74
 ```
 
 # Simulation 1
-
+Abdo Checked
 ```{r}
 sim1 <- data.frame(year = 2020:2100,
                    L = L_0,
@@ -65,13 +65,14 @@ set.seed(420)
 pi <- 0.05
 theta <- 0.05
 year <- c(2020:2100)
-W <- as.integer(lapply(runif(length(year)), function(x) ifelse(x<pi, 1, 0)))
+#Why not rbinom()??
+W_sim2 <- as.integer(lapply(runif(length(year)), function(x) ifelse(x<pi, 1, 0)))
 
 
 ### Expected [E] ###
 
 sim2_E <- data.frame(year = 2020:2100,
-                   W = W,
+                   W = W_sim2,
                    L = L_0,
                    K_sim2 = K_0,
                    A_sim2 = A_0,
@@ -97,7 +98,7 @@ for (i in 2:nrow(sim2_E)) {
 ### Random realisation [RR] ###
 
 sim2_RR <- data.frame(year = 2020:2100,
-                   W = W,
+                   W = W_sim2,
                    L = L_0,
                    K_sim2 = K_0,
                    A_sim2 = A_0,
@@ -110,9 +111,8 @@ sim2_RR <- sim2_RR %>%
   mutate( Y_sim2 = K_0^alpha*(A_sim2*L_0)^(1-alpha),
                    y_sim2 = K_0^alpha*(A_sim2*L_0)^(1-alpha)/L_0)
 
-
 for (i in 2:nrow(sim2_RR)) {
-  sim2_RR$A_sim2[i] <- sim2_RR$A_sim2[i-1]*exp(g)*(1-sim2_RR$W[i]*theta)
+  sim2_RR$A_sim2[i] <- sim2_RR$A_sim2[i-1]*exp(g)*(1-(sim2_RR$W[i]*theta))
   sim2_RR$K_sim2[i] <- (1-delta)*sim2_RR$K_sim2[i-1] + s*sim2_RR$Y_sim2[i-1]
   sim2_RR$Y_sim2[i] <- sim2_RR$K_sim2[i]^alpha*(sim2_RR$L[i]*sim2_RR$A_sim2[i])^(1-alpha)
   sim2_RR$y_sim2[i] <- sim2_RR$Y_sim2[i]/sim2_RR$L[i]
@@ -154,10 +154,10 @@ for (i in 2:nrow(sim3_E)) {
 
 ### Random realisation [RR] ###
 
-W <- as.integer(runif(length(2020:2100)) < pi_sim3)
+W_sim3 <- as.integer(runif(length(2020:2100)) < pi_sim3)
 
 sim3_RR <- data.frame(year = 2020:2100,
-                   W = W,
+                   W = W_sim3,
                    L = L_0,
                    K = K_0,
                    A = A_0,
@@ -189,7 +189,7 @@ theta_u <- .05
 B_0 <- 0
 
 sim4 <- data.frame(year = 2020:2100,
-                   W = W,
+                   W = W_sim3,
                    L = L_0,
                    K = K_0,
                    A = A_0,
