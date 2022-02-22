@@ -60,9 +60,6 @@ ggplot(data = sim1, aes(x = year, y = yhat_sim1)) +
 
 # Simulation 2
 
-𝜃 is an element (0,1)
-now 𝐴(𝑡 + 1) = 𝐴(𝑡)𝑒𝑔[1 ― 𝑊(𝑡 + 1)𝜃].
-First, we need to find the probability of the event happening. This probability is from a bernouli distribution.
 ```{r}
 set.seed(420)
 pi <- 0.05
