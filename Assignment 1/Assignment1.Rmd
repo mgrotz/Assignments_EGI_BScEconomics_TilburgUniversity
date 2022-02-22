@@ -224,4 +224,11 @@ for (i in 2:nrow(sim4)) {
 ggplot(data = sim4) +
   geom_line(aes(x = year, y = C_over_Csim3))
 ```
+## Writing the code into xlsx
+```{r}
+library(writexl)
+
+
+write_xlsx(list(Simulation1= sim1, Simulation2E= sim2_E, Simulation2RR= sim2_RR, Simulation3E= sim3_E, Simulation3RR= sim3_RR, simulation4 = sim4), col_names = TRUE, "EGI: Assignment1.xlsx")
+```
 
