@@ -245,6 +245,6 @@ ggplot(data = sim4) +
 library(writexl)
 
 
-write_xlsx(list(Simulation1= sim1, Simulation2E= sim2_E, Simulation2RR= sim2_RR, Simulation3E= sim3_E, Simulation3RR= sim3_RR, simulation4 = sim4), col_names = TRUE, "EGI_Assignment1.xlsx")
+write_xlsx(list(Simulation1= sim1, Simulation2E= sim2_E, Simulation2RR= sim2_RR, Simulation3E= sim3_E, Simulation3RR= sim3_RR, simulation4 = sim4), col_names = TRUE, "EGI_Assignment1_NuurVdVelGrotz.xlsx")
 ```
 
