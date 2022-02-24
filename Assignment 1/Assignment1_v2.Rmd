@@ -58,7 +58,7 @@ sim1 <- sim1%>%
 # Renaming
 sim1 <- rename(sim1, K = K_sim1, A= A_sim1, yhat = yhat_sim1, Y= Y_sim1, y= y_sim1)
 
-ggplot(data = sim1, aes(x = year, y = yhat_sim1)) +
+ggplot(data = sim1, aes(x = year, y = yhat)) +
   geom_line()
 ```
 
