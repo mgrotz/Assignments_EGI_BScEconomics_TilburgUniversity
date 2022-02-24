@@ -32,7 +32,7 @@ A_0 = 10862.74
 ```
 
 # Simulation 1
-Abdo Checked
+
 ```{r}
 sim1 <- data.frame(year = 2020:2100,
                    L = L_0,
@@ -67,9 +67,8 @@ set.seed(420)
 pi <- 0.05
 theta <- 0.05
 year <- c(2020:2100)
-#Why not rbinom()??
-W_sim2 <- as.integer(lapply(runif(length(year)), function(x) ifelse(x<pi, 1, 0)))
 
+W_sim2 <- as.integer(lapply(runif(length(year)), function(x) ifelse(x<pi, 1, 0)))
 
 ### Expected [E] ###
 
