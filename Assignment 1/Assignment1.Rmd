@@ -233,7 +233,9 @@ sim4 <- sim4%>%
 ggplot(data = sim4) +
   geom_line(aes(x = year, y = C_over_Csim3))
 ```
+
 ## Writing the code into xlsx
+
 ```{r}
 library(writexl)
 
