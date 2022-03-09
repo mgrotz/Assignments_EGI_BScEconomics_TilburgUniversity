@@ -242,6 +242,7 @@ ggplot(data = sim4) +
 
 ## Writing the code into xlsx
 
+
 ```{r}
 library(writexl)
 

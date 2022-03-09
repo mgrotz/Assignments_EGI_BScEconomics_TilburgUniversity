@@ -58,8 +58,11 @@ sim1 <- sim1%>%
 # Renaming
 sim1 <- rename(sim1, K = K_sim1, A= A_sim1, yhat = yhat_sim1, Y= Y_sim1, y= y_sim1)
 
-ggplot(data = sim1, aes(x = year, y = yhat)) +
-  geom_line()
+ggplot(data = sim1, aes(x = year, y = yhat)) + 
+  geom_line(color = 'blue', size = 2) + 
+  labs(title = "Growth Rate of GDPpc as a Function of Time", subtitle = "From 2020 - 2100")
+  
+  
 ```
 
 # Simulation 2
@@ -245,12 +248,32 @@ sim4 <- sim4%>%
 ggplot(data = sim4) +
   geom_line(aes(x = year, y = C_over_Csim3))
 ```
+##Making plots:
+```{r}
+
+ggplot() +
+  geom_line(data=sim1, aes(x = year, y = log(y)), size = 1.25) +
+  geom_line(linetype = 'dashed', data=sim2_E, aes(x = year, y = log(y)), color = 'blue', size = 1.25) +
+  geom_line(data=sim2_RR, aes(x = year, y = log(y)), color = 'blue', size = 1.25) + 
+  geom_line(linetype = 'dashed', data=sim3_E, aes(x = year, y = log(y)), color = 'red', size = 1.25) + 
+  geom_line(data=sim3_RR, aes(x = year, y = log(y)), color = 'red', size = 1.25) +
+  labs(y = "Log(GDPpc)", title = "GDPpc as a Function of Time", subtitle = "For simulations 1 - 3")
+  
+  
+
+```
+```{r}
+
+ggplot() +
+  geom_line(data=sim4, aes(x = year, y = C_over_Csim3), size = 1.25) +
+  labs(y = "Ratio of Consumption in Sim4/Sim3", title = "Consumption Ratio in Sim4/Sim3")
+
+```
 
 ## Writing the code into xlsx
 
 ```{r}
 library(writexl)
-
 
 write_xlsx(list(Simulation1= sim1, Simulation2E= sim2_E, Simulation2RR= sim2_RR, Simulation3E= sim3_E, Simulation3RR= sim3_RR, simulation4 = sim4), col_names = TRUE, "EGI_Assignment1_NuurVdVelGrotz.xlsx")
 ```
