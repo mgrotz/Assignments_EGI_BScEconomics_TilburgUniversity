@@ -58,12 +58,40 @@ sim1 <- sim1%>%
 # Renaming
 sim1 <- rename(sim1, K = K_sim1, A= A_sim1, yhat = yhat_sim1, Y= Y_sim1, y= y_sim1)
 
-ggplot(data = sim1, aes(x = year, y = yhat)) + 
-  geom_line(color = 'blue', size = 2) + 
-  labs(title = "Growth Rate of GDPpc as a Function of Time", subtitle = "From 2020 - 2100")
+
+ 
   
   
 ```
+a) Present a line chart of the growth rate of GDP per capita, computed in the 
+previous step, as a function of time for the 2020-2100 period.
+```{r}
+ggplot(data = sim1, aes(x = year, y = yhat)) + 
+  geom_line(color = 'blue') + 
+  geom_hline(yintercept = 0.02,color= "red", alpha= 0.6, linetype= "dashed")+
+  geom_vline(xintercept = 2020, color= 'black', linetype= "dashed")+
+  labs(title = "Growth Rate of GDPpc as a Function of Time", subtitle = "From 2020 - 2100")
+```
+b) 
+**i)** Based on the figure, is GDP per capita in 2020 below or above its steady state 
+level. Justify your answer by explicitly referring to how the growth rate GDP per 
+capita evolves over time.
+
+
+**Answer**:
+In year 2020, the gdp per capital is far below it's steady state level, given that it's growth rate is not equal to the steady state growth rate of GDPpc.
+
+**ii)** Approximately, in which year does the economy reach the 
+steady state?
+```{r}
+
+which(sim1["yhat"]==0.02) #The period(index) number
+sim1[63,1] 
+```
+**Answer** 
+The economy will reach it's steady state in year 2082
+
+
 
 # Simulation 2
 
