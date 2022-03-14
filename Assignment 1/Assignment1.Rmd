@@ -69,7 +69,9 @@ previous step, as a function of time for the 2020-2100 period.
 library(ggpmisc)
 ggplot(data = sim1_graph, aes(x = year, y = yhat)) + 
   geom_line(color = 'blue') + 
-  labs(title = "Growth Rate of GDPpc as a Function of Time", subtitle = "From 2020 - 2100", x = "Year", y = "hat(y)")
+  labs(title = "Growth Rate of GDPpc as a Function of Time", subtitle = "From 2020 - 2100", x = "Year", y = expression(hat(y)))
+
+ggsave("sim1_yhat.png", width = 8, height = 5)
 ```
 b) 
 **i)** Based on the figure, is GDP per capita in 2020 below or above its steady state 
