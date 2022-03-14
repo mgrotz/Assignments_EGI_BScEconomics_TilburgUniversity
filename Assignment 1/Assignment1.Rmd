@@ -53,12 +53,44 @@ for (i in 2:nrow(sim1)) {
   sim1$y_sim1[i] <- sim1$Y_sim1[i]/sim1$L[i]
   sim1$yhat_sim1[i] <- (sim1$y_sim1[i]-sim1$y_sim1[i-1])/sim1$y_sim1[i-1]
 }
+
+sim1 <- rename(sim1, K = K_sim1, A= A_sim1, yhat = yhat_sim1, Y= Y_sim1, y= y_sim1)
+
+sim1_graph <- sim1
+
 sim1 <- sim1%>%
   mutate_if(is.numeric, round, digits= 3)
+# Renaming
 
-ggplot(data = sim1, aes(x = year, y = yhat_sim1)) +
-  geom_line()
 ```
+a) Present a line chart of the growth rate of GDP per capita, computed in the 
+previous step, as a function of time for the 2020-2100 period.
+```{r}
+library(ggpmisc)
+ggplot(data = sim1_graph, aes(x = year, y = yhat)) + 
+  geom_line(color = 'blue') + 
+  labs(title = "Growth Rate of GDPpc as a Function of Time", subtitle = "From 2020 - 2100", x = "Year", y = "hat(y)")
+```
+b) 
+**i)** Based on the figure, is GDP per capita in 2020 below or above its steady state 
+level. Justify your answer by explicitly referring to how the growth rate GDP per 
+capita evolves over time.
+
+
+**Answer**:
+In year 2020, the gdp per capital is far below it's steady state level, given that it's growth rate is not equal to the steady state growth rate of GDPpc.
+
+**ii)** Approximately, in which year does the economy reach the 
+steady state?
+```{r}
+
+which(sim1["yhat"]==0.02) #The period(index) number
+sim1[63,1] 
+```
+**Answer** 
+The economy will reach it's steady state in year 2082
+
+
 
 # Simulation 2
 
@@ -94,6 +126,8 @@ for (i in 2:nrow(sim2_E)) {
   sim2_E$y_sim2[i] <- sim2_E$Y_sim2[i]/sim2_E$L[i]
   sim2_E$yhat_sim2[i] <- (sim2_E$y_sim2[i]-sim2_E$y_sim2[i-1])/sim2_E$y_sim2[i-1]
 }
+sim2_E <- rename(sim2_E, K = K_sim2, A= A_sim2, yhat = yhat_sim2, Y= Y_sim2, y= y_sim2)
+
 sim2_E <- sim2_E%>%
   mutate_if(is.numeric, round, digits= 3)
 
@@ -120,6 +154,8 @@ for (i in 2:nrow(sim2_RR)) {
   sim2_RR$y_sim2[i] <- sim2_RR$Y_sim2[i]/sim2_RR$L[i]
   sim2_RR$yhat_sim2[i] <- (sim2_RR$y_sim2[i]-sim2_RR$y_sim2[i-1])/sim2_RR$y_sim2[i-1]
 }
+
+sim2_RR <-rename(sim2_RR, K = K_sim2, A= A_sim2, yhat = yhat_sim2, Y= Y_sim2, y= y_sim2)
 sim2_RR <- sim2_RR%>%
   mutate_if(is.numeric, round, digits= 3)
 #ggplot(data = sim2_RR, aes(x = year, y = yhat_sim2)) +
@@ -146,7 +182,7 @@ sim3_E <- sim3_E %>%
   mutate(L = L_0*exp(n*(year-2020)))
 
 sim3_E <- sim3_E %>%
-  mutate(Y_sim3 = K_0^alpha*(A*L_0)^(1-alpha),
+  mutate(Y = K_0^alpha*(A*L_0)^(1-alpha),
                    y = K_0^alpha*(A*L_0)^(1-alpha)/L_0)
 
 for (i in 2:nrow(sim3_E)) {
@@ -177,7 +213,7 @@ sim3_RR <- sim3_RR %>%
   mutate(L = L_0*exp(n*(year-2020)))
 
 sim3_RR <- sim3_RR %>%
-  mutate( Y_sim3 = K_0^alpha*(A*L_0)^(1-alpha),
+  mutate( Y = K_0^alpha*(A*L_0)^(1-alpha),
                    y = K_0^alpha*(A*L_0)^(1-alpha)/L_0)
 
 
@@ -239,13 +275,32 @@ sim4 <- sim4%>%
 ggplot(data = sim4) +
   geom_line(aes(x = year, y = C_over_Csim3))
 ```
+##Making plots:
+```{r}
+
+ggplot() +
+  geom_line(data=sim1, aes(x = year, y = log(y)), size = 1.25) +
+  geom_line(linetype = 'dashed', data=sim2_E, aes(x = year, y = log(y)), color = 'blue', size = 1.25) +
+  geom_line(data=sim2_RR, aes(x = year, y = log(y)), color = 'blue', size = 1.25) + 
+  geom_line(linetype = 'dashed', data=sim3_E, aes(x = year, y = log(y)), color = 'red', size = 1.25) + 
+  geom_line(data=sim3_RR, aes(x = year, y = log(y)), color = 'red', size = 1.25) +
+  labs(y = "Log(GDPpc)", title = "GDPpc as a Function of Time", subtitle = "For simulations 1 - 3")
+  
+  
+
+```
+```{r}
+
+ggplot() +
+  geom_line(data=sim4, aes(x = year, y = C_over_Csim3), size = 1.25) +
+  labs(y = "Ratio of Consumption in Sim4/Sim3", title = "Consumption Ratio in Sim4/Sim3")
+
+```
 
 ## Writing the code into xlsx
 
-
 ```{r}
 library(writexl)
-
 
 write_xlsx(list(Simulation1= sim1, Simulation2E= sim2_E, Simulation2RR= sim2_RR, Simulation3E= sim3_E, Simulation3RR= sim3_RR, simulation4 = sim4), col_names = TRUE, "EGI_Assignment1_NuurVdVelGrotz.xlsx")
 ```
