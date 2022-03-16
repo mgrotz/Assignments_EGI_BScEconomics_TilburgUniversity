@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(tidyverse)
+library(dplyr)
 ```
 
 # Introduction
@@ -68,28 +69,10 @@ previous step, as a function of time for the 2020-2100 period.
 library(ggpmisc)
 ggplot(data = sim1_graph, aes(x = year, y = yhat)) + 
   geom_line(color = 'blue') + 
-  labs(title = "Growth Rate of GDPpc as a Function of Time", subtitle = "From 2020 - 2100", x = "Year", y = expression(hat(y)))
-
+ labs(title= expression("Growth Rate of"~ hat(y)(t) ~"over time"), subtitle = "From 2020 - 2100", x = "Year", y = expression(hat(y)))
 ggsave("sim1_yhat.png", width = 8, height = 5)
 ```
 b) 
-**i)** Based on the figure, is GDP per capita in 2020 below or above its steady state 
-level. Justify your answer by explicitly referring to how the growth rate GDP per 
-capita evolves over time.
-
-
-**Answer**:
-In year 2020, the gdp per capital is far below it's steady state level, given that it's growth rate is not equal to the steady state growth rate of GDPpc.
-
-**ii)** Approximately, in which year does the economy reach the 
-steady state?
-```{r}
-
-which(sim1["yhat"]==0.02) #The period(index) number
-sim1[63,1] 
-```
-**Answer** 
-The economy will reach it's steady state in year 2082
 
 
 
