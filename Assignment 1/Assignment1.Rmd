@@ -269,8 +269,9 @@ for (i in 2:nrow(sim4)) {
 
 ggplot(data = sim4) +
   geom_line(aes(x = year, y = C_over_Csim3)) +
-  labs(x = "Year", y = "Ratio of Consumption in Sim4/Sim3", title = "Consumption per capita in simulation 4 \nover consumption per capita in simulation 3")
+  labs(x = "Year", y = "Ratio of Consumption in Sim4/Sim3", title = "Consumption per capita in simulation 4 \nover consumption per capita in simulation 3", subtitle = "From 2020 - 2100")
 
+ggsave("sim4_consumption.png", width = 8, height = 5)
 
 ```
 ## Making plots:
@@ -288,8 +289,11 @@ ggplot(data = data_figure2, aes(x = year, y = value, color = source, linetype = 
   scale_linetype_manual(name = "" , 
                          labels = c("Simulation 1", "Simulation 2 (expected)", "Simulation 2 (realised)", "Simulation 3 (expected)", "Simulation 3 (realised)"), 
                         values = c("solid", "dashed", "solid", "dashed", "solid")) +
-  scale_y_continuous(trans = "log10")
+  scale_y_continuous(trans = "log") + 
+  annotation_logticks() +
+  labs(x = "Year", y = "y", title = "GDP per capita over time in Simulation 2 and 3 (both expected and realised)", subtitle = "From 2020 - 2100")
   
+
 ggsave("sim4.png", width = 8, height = 5)
 
 ```
