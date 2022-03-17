@@ -57,8 +57,7 @@ sim1 <- rename(sim1, K = K_sim1, A= A_sim1, yhat = yhat_sim1, Y= Y_sim1, y= y_si
 
 sim1_graph <- sim1
 
-sim1 <- sim1%>%
-  mutate_if(is.numeric, round, digits= 3)
+
 # Renaming
 
 ```
@@ -110,8 +109,7 @@ for (i in 2:nrow(sim2_E)) {
 
 sim2_E <- rename(sim2_E, K = K_sim2, A= A_sim2, yhat = yhat_sim2, Y= Y_sim2, y= y_sim2)
 
-sim2_E <- sim2_E%>%
-  mutate_if(is.numeric, round, digits= 3)
+
 
 ### Random realisation [RR] ###
 
@@ -137,8 +135,7 @@ for (i in 2:nrow(sim2_RR)) {
   sim2_RR$yhat_sim2[i] <- log(sim2_RR$y_sim2[i]/sim2_RR$y_sim2[i-1])}
 
 sim2_RR <-rename(sim2_RR, K = K_sim2, A= A_sim2, yhat = yhat_sim2, Y= Y_sim2, y= y_sim2)
-sim2_RR <- sim2_RR%>%
-  mutate_if(is.numeric, round, digits= 3)
+
 ```
 
 # Simulation 3
@@ -172,8 +169,7 @@ for (i in 2:nrow(sim3_E)) {
   sim3_E$yhat[i] <- log(sim3_E$y[i]/sim3_E$y[i-1])
 }
 
-sim3_E <- sim3_E%>%
-  mutate_if(is.numeric, round, digits= 3)
+
 
 
 ### Random realisation [RR] ###
@@ -203,21 +199,26 @@ for (i in 2:nrow(sim3_RR)) {
   sim3_RR$y[i] <- sim3_RR$Y[i]/sim3_RR$L[i]
   sim3_RR$yhat[i] <- log(sim3_RR$y[i]/sim3_RR$y[i-1])
 }
-sim3_RR <- sim3_RR%>%
-  mutate_if(is.numeric, round, digits= 3)
+
 ```
 
 
 
 ```{r}
 ### simulation 1 ###
-
+sim1_graph %>% 
+  filter(year > 2090) %>%
+  summarise(mean(yhat))
 
 ### Simulation 2 ###
-
+sim2_E %>% 
+  filter(year > 2090) %>%
+  summarise(mean(yhat))
 
 ### Simulation 3 ###
-
+sim3_E %>% 
+  filter(year > 2090) %>%
+  summarise(mean(yhat))
 
 ```
 
@@ -264,8 +265,7 @@ for (i in 2:nrow(sim4)) {
   sim4$yhat[i] <- log(sim4$y[i]/sim4$y[i-1])
   sim4$C_over_Csim3[i] <- sim4$C[i]/sim4$C_sim3[i] 
 }
-sim4 <- sim4%>%
-  mutate_if(is.numeric, round, digits= 3)
+
 
 ggplot(data = sim4) +
   geom_line(aes(x = year, y = C_over_Csim3))
