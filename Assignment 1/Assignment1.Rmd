@@ -268,7 +268,10 @@ for (i in 2:nrow(sim4)) {
 
 
 ggplot(data = sim4) +
-  geom_line(aes(x = year, y = C_over_Csim3))
+  geom_line(aes(x = year, y = C_over_Csim3)) +
+  labs(x = "Year", y = "Ratio of Consumption in Sim4/Sim3", title = "Consumption per capita in simulation 4 \nover consumption per capita in simulation 3")
+
+
 ```
 ## Making plots:
 ```{r}
