@@ -207,6 +207,22 @@ sim3_RR <- sim3_RR%>%
   mutate_if(is.numeric, round, digits= 3)
 ```
 
+
+
+```{r}
+### simulation 1 ###
+
+
+### Simulation 2 ###
+
+
+### Simulation 3 ###
+
+
+```
+
+
+
 # Simulation 4
 
 ```{r}
@@ -264,23 +280,12 @@ data_figure2 <- data.frame(year = sim1$year, sim1 = sim1_graph$y, sim2_E = sim2_
 ggplot(data = data_figure2, aes(x = year, y = value, color = source, linetype = source)) +
   geom_line() +
   scale_color_manual(name = "", 
-                     labels = c("Simulation 1", "Simulation 2 (expected)", "Simulation 2 (realised)", "Simulation 3 (expected)", "Simulation 3 (realised"), 
+                     labels = c("Simulation 1", "Simulation 2 (expected)", "Simulation 2 (realised)", "Simulation 3 (expected)", "Simulation 3 (realised)"), 
                      values = c("black", "blue", "blue", "red", "red")) +
   scale_linetype_manual(name = "" , 
-                         labels = c("Simulation 1", "Simulation 2 (expected)", "Simulation 2 (realised)", "Simulation 3 (expected)", "Simulation 3 (realised"), 
+                         labels = c("Simulation 1", "Simulation 2 (expected)", "Simulation 2 (realised)", "Simulation 3 (expected)", "Simulation 3 (realised)"), 
                         values = c("solid", "dashed", "solid", "dashed", "solid")) +
   scale_y_continuous(trans = "log10")
-
-ggplot(size = 1.25, alpha = .8) +
-  geom_line(data=sim1, aes(x = year, y = y)) +
-  geom_line(linetype = 'dashed', data=sim2_E, aes(x = year, y = y), color = 'blue') +
-  geom_line(data=sim2_RR, aes(x = year, y = y), color = 'blue') + 
-  geom_line(linetype = 'dashed', data=sim3_E, aes(x = year, y = y), color = 'red') + 
-  geom_line(data=sim3_RR, aes(x = year, y = y), color = 'red') +
-  labs(y = "y", title = "GDPpc as a Function of Time", subtitle = "For simulations 1 - 3") +
-  scale_y_continuous(trans = "log10") +
-  labs(color = "Legend")
-  
   
 ggsave("sim4.png", width = 8, height = 5)
 
