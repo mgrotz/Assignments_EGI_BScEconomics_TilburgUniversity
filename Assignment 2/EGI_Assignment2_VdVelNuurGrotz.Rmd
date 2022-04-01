@@ -1,0 +1,24 @@
+---
+title: 'Economic Growth and Institutions: Assignment 2'
+author: "Mathieu Van der Vel, Abdirahman Nuur and Maximilian Grotz"
+date: "1 4 2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = F, message = F)
+```
+
+# Setup
+
+```{r}
+library(tidyverse)
+```
+
+
+# Simulation 1
+
+```{r}
+
+```
+
