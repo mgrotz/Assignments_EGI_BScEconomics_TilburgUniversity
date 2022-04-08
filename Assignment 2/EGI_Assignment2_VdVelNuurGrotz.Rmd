@@ -16,9 +16,222 @@ library(tidyverse)
 ```
 
 
-# Simulation 1
-
+# Parameters
 ```{r}
-
+sm <- 0
+L_0 <- 7.9
+K_0 <- 170
+M_0 <- 500
+A_0 <- 7
+sk <- 0.25
+delta <- 0.04
+alpha <- 0.33
+n <- 0.015
+g <- 0.02
+x <- 0.7
+epsilon <- 0.5
+w <- 0.05
+k_greek <- 0.75
+theta1 <- 0.05
+theta2 <- 2
 ```
+# Simulation 1: No abatment effort, `r s_m` = 0
+Notes to Mathieu: 
+1. I simplifed the paramters seeing the `.` as a decimal point
+2. Minor modifications to the formulas like ` y`instead of `Y`, and the some equations
+```{r}
+sim1 <- data.frame(year = 2020:2100,
+                   L = L_0,
+                   K = K_0,
+                   A = A_0,
+                   sm = sm,
+                   Z = (K_0^alpha)*((A_0*L_0)^(1-alpha)),
+                   m = NA,
+                   M = M_0,
+                   T = 1 + (M_0^k_greek/1000),
+                   D = NA,
+                   Y_sim1 = NA,
+                   y_sim1 = NA,
+                   yhat_sim1 = NA,
+                   c_sim1 = NA,
+                   chat_sim1 = NA)
+# Start Calculating Values
+sim1 <- sim1 %>%
+  mutate(L = L_0*exp(n*(year-2020)),
+         A = A_0*exp(g*(year-2020)),
+         m = x*((1-(sm/w))^epsilon)*Z[1],
+         D = 1 - (1/(1+theta1*T[1]^theta2)))
+
+sim1 <- sim1 %>%
+  mutate(Y_sim1 = (1-D[1])*(Z[1]))
+
+sim1 <- sim1 %>%
+  mutate(y_sim1 = Y_sim1[1]/L_0,
+         c_sim1 = (1-sk-sm)*y_sim1[1])
+
+for (i in 2:nrow(sim1)){
+  sim1$K[i] <- (1-delta)*sim1$K[i-1] + sk*sim1$Y_sim1[i-1]
+  sim1$M[i] <- sim1$M[i-1] + sim1$m[i-1]
+  sim1$Z[i] <- (sim1$K[i]^alpha)*(sim1$A[i]*sim1$L[i])^(1-alpha)
+  sim1$m[i] <- x*(1-(sm/w))^epsilon*sim1$Z[i]
+  sim1$T[i] <- 1 + ((sim1$M[i]^k_greek)/1000)
+  sim1$D[i] <- 1 - (1/(1+theta1*sim1$T[i]^theta2))
+  sim1$Y_sim1[i] <- (1-sim1$D[i])*(sim1$Z[i])
+  sim1$y_sim1[i] <- sim1$Y_sim1[i]/sim1$L[i]
+  sim1$c_sim1[i] <- (1-sk-sm)*sim1$y_sim1[i]
+  sim1$yhat_sim1[i] <- log(sim1$y_sim1[i]/sim1$y_sim1[i-1])
+  sim1$chat_sim1[i] <- log(sim1$c_sim1[i]/sim1$c_sim1[i-1])
+}
+```
+
+
+
+# Simulation 2: Full abatment effort, `r s_m` = `r w`
+# second sim Parameters 
+```{r}
+w <- 0.05
+sm <- w
+L_0 <- 7.9
+K_0 <- 170
+M_0 <- 500
+A_0 <- 7
+sk <- 0.25
+delta <- 0.04
+alpha <- 0.33
+n <- 0.015
+g <- 0.02
+x <- 0.7
+epsilon <- 0.5
+
+k_greek <- 0.75
+theta1 <- 0.05
+theta2 <- 2
+```
+# Second simulation
+```{r}
+sim2 <- data.frame(year = 2020:2100,
+                 L = L_0,
+                   K = K_0,
+                   A = A_0,
+                   sm = sm,
+                   Z = (K_0^alpha)*((A_0*L_0)^(1-alpha)),
+                   m = NA,
+                   M = M_0,
+                   T = 1 + (M_0^k_greek/1000),
+                   D = NA,
+                   Y_sim2 = NA,
+                   y_sim2 = NA,
+                   yhat_sim2 = NA,
+                   c_sim2 = NA,
+                   chat_sim2 = NA)
+# Start Calculating Values
+sim2 <- sim2 %>%
+  mutate(L = L_0*exp(n*(year-2020)),
+         A = A_0*exp(g*(year-2020)),
+         m = x*((1-(sm/w))^epsilon)*Z[1],
+         D = 1 - (1/(1+theta1*T[1]^theta2)))
+
+sim2 <- sim2 %>%
+  mutate(Y_sim2 = (1-D[1])*(Z[1]))
+
+sim2 <- sim2 %>%
+  mutate(y_sim2 = Y_sim2[1]/L_0,
+         c_sim2 = (1-sk-sm)*y_sim2[1])
+
+for (i in 2:nrow(sim2)){
+  sim2$K[i] <- (1-delta)*sim2$K[i-1] + sk*sim2$Y_sim2[i-1]
+  sim2$M[i] <- sim2$M[i-1] + sim2$m[i-1]
+  sim2$Z[i] <- (sim2$K[i]^alpha)*(sim2$A[i]*sim2$L[i])^(1-alpha)
+  sim2$m[i] <- x*(1-(sm/w))^epsilon*sim2$Z[i]
+  sim2$T[i] <- 1 + ((sim2$M[i]^k_greek)/1000)
+  sim2$D[i] <- 1 - (1/(1+theta1*sim2$T[i]^theta2))
+  sim2$Y_sim2[i] <- (1-sim2$D[i])*(sim2$Z[i])
+  sim2$y_sim2[i] <- sim2$Y_sim2[i]/sim2$L[i]
+  sim2$c_sim2[i] <- (1-sk-sm)*sim2$y_sim2[i]
+  sim2$yhat_sim2[i] <- log(sim2$y_sim2[i]/sim2$y_sim2[i-1])
+  sim2$chat_sim2[i] <- log(sim2$c_sim2[i]/sim2$c_sim2[i-1])
+}
+```
+# Third simulation
+
+# Third sim Parameters 
+```{r}
+w <- 0.05
+sm <-  0.025           #sm(t=0), the new sm is added in the dataframe
+L_0 <- 7.9
+K_0 <- 170
+M_0 <- 500
+A_0 <- 7
+sk <- 0.25
+delta <- 0.04
+alpha <- 0.33
+n <- 0.015
+g <- 0.02
+x <- 0.7
+epsilon <- 0.5
+n_greek <- 0.02 #for sm
+k_greek <- 0.75
+theta1 <- 0.05
+theta2 <- 2
+```
+
+
+# Third simulation
+```{r}
+sim3 <- data.frame(year = 2020:2100,
+                 L = L_0,
+                   K = K_0,
+                   A = A_0,
+                   sm = NA,
+                   Z = (K_0^alpha)*((A_0*L_0)^(1-alpha)),
+                   m = NA,
+                   M = M_0,
+                   T = 1 + (M_0^k_greek/1000),
+                   D = NA,
+                   Y_sim3 = NA,
+                   y_sim3 = NA,
+                   yhat_sim3 = NA,
+                   c_sim3 = NA,
+                   chat_sim3 = NA)
+# Start Calculating Values
+sim3 <- sim3 %>%
+  mutate(L = L_0*exp(n*(year-2020)),
+         A = A_0*exp(g*(year-2020)),
+         sm = w/ (1+ exp(n_greek* (2020- year))),
+         m = x*((1-(sm/w))^epsilon)*Z[1],
+         D = 1 - (1/(1+theta1*T[1]^theta2)))
+
+sim3 <- sim3 %>%
+  mutate(Y_sim3 = (1-D[1])*(Z[1]))
+
+sim3 <- sim3 %>%
+  mutate(y_sim3 = Y_sim3[1]/L_0,
+         c_sim3 = (1-sk-sm)*y_sim3[1])
+
+for (i in 2:nrow(sim3)){
+  sim3$K[i] <- (1-delta)*sim3$K[i-1] + sk*sim3$Y_sim3[i-1]
+  sim3$M[i] <- sim3$M[i-1] + sim3$m[i-1]
+  sim3$Z[i] <- (sim3$K[i]^alpha)*(sim3$A[i]*sim3$L[i])^(1-alpha)
+  sim3$m[i] <- x*(1-(sm/w))^epsilon*sim3$Z[i]
+  sim3$T[i] <- 1 + ((sim3$M[i]^k_greek)/1000)
+  sim3$D[i] <- 1 - (1/(1+theta1*sim3$T[i]^theta2))
+  sim3$Y_sim3[i] <- (1-sim3$D[i])*(sim3$Z[i])
+  sim3$y_sim3[i] <- sim3$Y_sim3[i]/sim3$L[i]
+  sim3$c_sim3[i] <- (1-sk-sm)*sim3$y_sim3[i]
+  sim3$yhat_sim3[i] <- log(sim3$y_sim3[i]/sim3$y_sim3[i-1])
+  sim3$chat_sim3[i] <- log(sim3$c_sim3[i]/sim3$c_sim3[i-1])
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
 
