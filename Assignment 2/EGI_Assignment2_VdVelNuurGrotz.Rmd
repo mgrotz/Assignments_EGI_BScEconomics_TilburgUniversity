@@ -212,17 +212,17 @@ for (i in 2:nrow(sim3)){
   sim3$K[i] <- (1-delta)*sim3$K[i-1] + sk*sim3$Y_sim3[i-1]
   sim3$M[i] <- sim3$M[i-1] + sim3$m[i-1]
   sim3$Z[i] <- (sim3$K[i]^alpha)*(sim3$A[i]*sim3$L[i])^(1-alpha)
-  sim3$m[i] <- x*(1-((sim3$sm)/w))^epsilon*sim3$Z[i]  # !!!!!!!!!!!!!!!!! Here is the jewel problem !!!!!!!!!!!!!!!!!!!!!!! The sm was added within the dataframe, unlike the former sm s. Maybe it's how i formulated it??, I maded it sim3$sm ~Abdo, 9Apr2022
+  
+  sim3$m[i] <- x*(1-(sim3$sm[i]/w))^epsilon*sim3$Z[i] 
   sim3$T[i] <- 1 + ((sim3$M[i]^k_greek)/1000)
   sim3$D[i] <- 1 - (1/(1+theta1*sim3$T[i]^theta2))
   sim3$Y_sim3[i] <- (1-sim3$D[i])*(sim3$Z[i])
   sim3$y_sim3[i] <- sim3$Y_sim3[i]/sim3$L[i]
-  sim3$c_sim3[i] <- (1-sk-sm)*sim3$y_sim3[i]
+  sim3$c_sim3[i] <- (1-sk-sim3$sm[i])*sim3$y_sim3[i]
   sim3$yhat_sim3[i] <- log(sim3$y_sim3[i]/sim3$y_sim3[i-1])
   sim3$chat_sim3[i] <- log(sim3$c_sim3[i]/sim3$c_sim3[i-1])
 }
 ```
-
 
 # Evaluation analysis
 
@@ -264,19 +264,6 @@ cpc_df <- cpc_df%>%
   )
 
 ```
-
-# The problem
-We differ with Sem's results for sim3&sim1, and that is because we have  different `r m`values. Either the results differ due to rounding issues, or due to something wrong with how we formulated it. 
-
-This df below is a way to compare it with Sem's numbers, have Sem's excel next to you for compariosn
-```{r}
-c3_scrap <- sim3$c_sim3
-c3_scrap_Df <- data.frame(c3_scrap)
-c3_scrap_Df$c3_rounded <- round(c3_scrap_Df$c3_scrap, 2)
-```
-
-
-
 
 
 
