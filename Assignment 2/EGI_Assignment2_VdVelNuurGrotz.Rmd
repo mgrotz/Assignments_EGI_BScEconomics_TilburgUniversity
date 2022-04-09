@@ -212,7 +212,7 @@ for (i in 2:nrow(sim3)){
   sim3$K[i] <- (1-delta)*sim3$K[i-1] + sk*sim3$Y_sim3[i-1]
   sim3$M[i] <- sim3$M[i-1] + sim3$m[i-1]
   sim3$Z[i] <- (sim3$K[i]^alpha)*(sim3$A[i]*sim3$L[i])^(1-alpha)
-  sim3$m[i] <- x*((1-(sim3$sm/w))^epsilon)*sim3$Z[i]
+  sim3$m[i] <- x*(1-((sim3$sm)/w))^epsilon*sim3$Z[i]  # !!!!!!!!!!!!!!!!! Here is the jewel problem !!!!!!!!!!!!!!!!!!!!!!! The sm was added within the dataframe, unlike the former sm s. Maybe it's how i formulated it??, I maded it sim3$sm ~Abdo, 9Apr2022
   sim3$T[i] <- 1 + ((sim3$M[i]^k_greek)/1000)
   sim3$D[i] <- 1 - (1/(1+theta1*sim3$T[i]^theta2))
   sim3$Y_sim3[i] <- (1-sim3$D[i])*(sim3$Z[i])
