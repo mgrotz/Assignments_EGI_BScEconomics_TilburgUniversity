@@ -259,10 +259,10 @@ cpc_df <- cpc_df%>%
 ```{r}
 library(writexl)
 
-sim1 <- round(sim1, digits = 3)
-sim2 <- round(sim2, digits = 3)
-sim3 <- round(sim3, digits = 3)
-cpc_df <- round(cpc_df, digits = 3)
+sim1 <- round(sim1, digits = 4)
+sim2 <- round(sim2, digits = 4)
+sim3 <- round(sim3, digits = 4)
+cpc_df <- round(cpc_df, digits = 4)
 
 write_xlsx(list(Simulation1 = sim1, Simulation2 = sim2, Simulation3 = sim3, Evaluation = cpc_df), col_names = TRUE, "EGI_Assignment2_NuurVdVelGrotz.xlsx")
 ```
