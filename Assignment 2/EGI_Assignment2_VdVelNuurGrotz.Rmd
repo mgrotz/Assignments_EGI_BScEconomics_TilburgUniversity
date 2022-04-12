@@ -15,9 +15,12 @@ knitr::opts_chunk$set(echo = TRUE, warning = F, message = F)
 library(tidyverse)
 ```
 
-
-# Parameters
+# Simulation 1: No abatment effort, `r s_m` = 0
+Notes to Mathieu: 
+1. I simplifed the paramters seeing the `.` as a decimal point
+2. Minor modifications to the forLikmulas like ` y`instead of `Y`, and the some equations
 ```{r}
+# Setting Parameters
 sm <- 0
 L_0 <- 7.9
 K_0 <- 170
@@ -34,12 +37,8 @@ w <- 0.05
 k_greek <- 0.75
 theta1 <- 0.05
 theta2 <- 2
-```
-# Simulation 1: No abatment effort, `r s_m` = 0
-Notes to Mathieu: 
-1. I simplifed the paramters seeing the `.` as a decimal point
-2. Minor modifications to the formulas like ` y`instead of `Y`, and the some equations
-```{r}
+
+# Creating Data Frame Structure
 sim1 <- data.frame(year = 2020:2100,
                    L = L_0,
                    K = K_0,
@@ -55,6 +54,7 @@ sim1 <- data.frame(year = 2020:2100,
                    yhat_sim1 = NA,
                    c_sim1 = NA,
                    chat_sim1 = NA)
+
 # Start Calculating Values
 sim1 <- sim1 %>%
   mutate(L = L_0*exp(n*(year-2020)),
@@ -87,8 +87,8 @@ for (i in 2:nrow(sim1)){
 
 
 # Simulation 2: Full abatment effort, `r s_m` = `r w`
-# second sim Parameters 
 ```{r}
+# Setting Parameters
 w <- 0.05
 sm <- w
 L_0 <- 7.9
@@ -106,9 +106,8 @@ epsilon <- 0.5
 k_greek <- 0.75
 theta1 <- 0.05
 theta2 <- 2
-```
-# Second simulation
-```{r}
+
+# Creating Data Frame Structure
 sim2 <- data.frame(year = 2020:2100,
                  L = L_0,
                    K = K_0,
@@ -124,6 +123,7 @@ sim2 <- data.frame(year = 2020:2100,
                    yhat_sim2 = NA,
                    c_sim2 = NA,
                    chat_sim2 = NA)
+
 # Start Calculating Values
 sim2 <- sim2 %>%
   mutate(L = L_0*exp(n*(year-2020)),
@@ -152,10 +152,12 @@ for (i in 2:nrow(sim2)){
   sim2$chat_sim2[i] <- log(sim2$c_sim2[i]/sim2$c_sim2[i-1])
 }
 ```
-# Third simulation
 
-# Third sim Parameters 
+
+
+# Third simulation
 ```{r}
+# Setting Parameters
 w <- 0.05
 sm <-  0.025           #sm(t=0), the new sm is added in the dataframe
 L_0 <- 7.9
@@ -173,11 +175,8 @@ n_greek <- 0.02 #for sm
 k_greek <- 0.75
 theta1 <- 0.05
 theta2 <- 2
-```
 
-
-# Third simulation
-```{r}
+# Creating Data Frame Structure
 sim3 <- data.frame(year = 2020:2100,
                  L = L_0,
                    K = K_0,
@@ -193,6 +192,7 @@ sim3 <- data.frame(year = 2020:2100,
                    yhat_sim3 = NA,
                    c_sim3 = NA,
                    chat_sim3 = NA)
+
 # Start Calculating Values
 sim3 <- sim3 %>%
   mutate(L = L_0*exp(n*(year-2020)),
@@ -226,46 +226,46 @@ for (i in 2:nrow(sim3)){
 
 # Evaluation analysis
 
-step1: have a df of each simulation's consumption per capita
 ```{r}
+# Step 1: Have a df of each simulation's consumption per capita
 cpc_df <- data.frame(year= 2020:2100, c1= sim1$c_sim1, c2= sim2$c_sim2, c3= sim3$c_sim3) 
-```
-Step2: cacluate the normal cpc difference between sim1&sim2, sim1&sim3 in the cpc_df, call them Current Value difference (CV diff)
-```{r}
+
+# Step 2: Cacluate the normal cpc difference between sim1&sim2, sim1&sim3 in the cpc_df, call them Current Value difference (CV diff)
 cpc_df <- cpc_df%>%
   mutate(
     CV_diff_c2_c1 = c2 -c1,
-    CV_diff_c3_c1= c3 - c1,
-  )
-```
-Step3: Caclulate the PV of  CV_diff_c1_c2, and  CV_diff_c1_c3
-```{r}
+    CV_diff_c3_c1= c3 - c1,)
+
+# Step 3: Caclulate the PV of  CV_diff_c1_c2, and  CV_diff_c1_c3
 #PV[x(t)]= exp(-r*(year-2020))*(CV_diff)
 r <- 0.03
 cpc_df <- cpc_df%>%
   mutate(
     PV_CV_diff_c2_c1= exp(-r*(2021-2020))*(c2[1]-c1[1]),
-    PV_CV_diff_c3_c1= exp(-r*(2021-2020))*(c3[1]-c1[1]) )
-
+    PV_CV_diff_c3_c1= exp(-r*(2021-2020))*(c3[1]-c1[1]))
 
 for(i  in 1:nrow(cpc_df)){
   cpc_df$PV_CV_diff_c2_c1[i]<- exp(-r*(cpc_df$year[i]-2020))*(cpc_df$c2[i]-cpc_df$c1[i])
-  cpc_df$PV_CV_diff_c3_c1[i]<- exp(-r*(cpc_df$year[i]-2020))*(cpc_df$c3[i]-cpc_df$c1[i])
-}
-```
-Step4: Calculate the CPV for each PV_diff
-```{r}
+  cpc_df$PV_CV_diff_c3_c1[i]<- exp(-r*(cpc_df$year[i]-2020))*(cpc_df$c3[i]-cpc_df$c1[i])}
+
+# Step 4: Calculate the CPV for each PV_diff
 cpc_df <- cpc_df%>%
   mutate(
     CPV_PV_c2_c1 = cumsum(PV_CV_diff_c2_c1),
-    CPV_PV_c3_c1 = cumsum(PV_CV_diff_c3_c1)
-    
-    
-  )
-
+    CPV_PV_c3_c1 = cumsum(PV_CV_diff_c3_c1))
 ```
 
+#Creating the Excel File:
+```{r}
+library(writexl)
 
+sim1 <- round(sim1, digits = 3)
+sim2 <- round(sim2, digits = 3)
+sim3 <- round(sim3, digits = 3)
+cpc_df <- round(cpc_df, digits = 3)
+
+write_xlsx(list(Simulation1 = sim1, Simulation2 = sim2, Simulation3 = sim3, Evaluation = cpc_df), col_names = TRUE, "EGI_Assignment2_NuurVdVelGrotz.xlsx")
+```
 
 
 
