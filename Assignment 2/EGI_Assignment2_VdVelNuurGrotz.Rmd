@@ -82,8 +82,28 @@ for (i in 2:nrow(sim1)){
   sim1$yhat_sim1[i] <- log(sim1$y_sim1[i]/sim1$y_sim1[i-1])
   sim1$chat_sim1[i] <- log(sim1$c_sim1[i]/sim1$c_sim1[i-1])
 }
+
+
+
+
+```
+## R2: Question d) A line chart of GDPpc  Mathieu
+
+```{r}
+ggplot(sim1_rounded, mapping = aes(x= year, y= yhat_sim1))+
+    geom_line()+
+  labs(x= "Year", y= "GDPpc growth rate", title = "Growth rate of GDP per capita as a function of time", subtitle = "DO THE Y-AXIS VALUES HAVE TO BE IN NATURAL LOG FORM???", caption= "From Sim1")+
+  expand_limits(y=0)+
+  scale_y_continuous(breaks = seq(0, 0.04, by = 0.005))
 ```
 
+## R2: Question f) ompare the last decade of the yearly growth rate of GDP per capita computed in column N with the long-run growth rate that you would have obtained in the model without climate. Do these rates differ? If so, to what do you attribute the difference? Mathieu
+
+The long-run growth rate of the model without climate is the same as with climate. Since technological growth rate is exogenous.
+```{r}
+
+last_decade_yhat <- data.frame(without_climate_long_growth_rate= "??", yhat_sim1 =tail(sim1_rounded$yhat_sim1, n= 10), with_climate_long_growth_rate= g)
+```
 
 
 # Simulation 2: Full abatment effort, `r s_m` = `r w`
@@ -152,6 +172,64 @@ for (i in 2:nrow(sim2)){
   sim2$chat_sim2[i] <- log(sim2$c_sim2[i]/sim2$c_sim2[i-1])
 }
 ```
+
+
+## R2: Question g) compare between yhat and chat for sim2. Describe and explain Abdo
+
+I will first plot them together with the same color, but the line type will be different. Then I will add as well the same from sim1 where there is no abatment effort. That way I can see the difference visually.
+
+In these two graphs it is shown
+```{r}
+data_fig_G_wide <- data.frame(year= sim1_rounded$year, sim1_yhat = sim1_rounded$yhat_sim1, sim1_chat = sim1_rounded$chat_sim1, sim2_yhat = sim2_rounded$yhat_sim2, sim2_chat = sim2_rounded$chat_sim2)
+ggplot(data_fig_G_wide)+
+  geom_line(aes(x= year, y= sim1_yhat), color= "red")+
+  geom_line(aes(x= year, sim2_yhat), color= "black")+
+  labs(x= "Year", y= "GDPpc growth rate", title= "Comparing GDPpc growth rate in sim1 and sim2")
+
+ggplot(data_fig_G_wide)+
+  geom_line(aes(x= year, y= sim1_chat), color= "red")+
+  geom_line(aes(x= year, sim2_chat), color= "black")+
+  labs(x= "Year", y= "ConsumptionPC growth rate", title= "Comparing ConsumptionPC growth rate in sim1 and sim2")
+
+```
+###Describe
+The boxplot shows that the growth rate of GDP per capita and consumption per capita are the equal at all times.
+
+###Explain
+Since in this scenario the government has decided to approach the emission problem by full abatement,  the investment rate in emission reduction is equal to w. This means that there is no further GHG emission starting from year 1, thus, the accumulation of GHG in the atmosphere is fixed at pre 2020 level. Thereofre, there is no futher increase in temperature either, which means there are no damages in material output. In other words, material output = GDP. 
+
+Consumption is buying goods from via a disposable income. Assuming that income tax rate is fixed thorughout the years, consumption increases proportionally to GDP in relative terms.
+```{r}
+data_fig_G_long <- data.frame(year= sim1_rounded$year, sim1_yhat = sim1_rounded$yhat_sim1, sim1_chat = sim1_rounded$chat_sim1, sim2_yhat = sim2_rounded$yhat_sim2, sim2_chat = sim2_rounded$chat_sim2)%>%
+  pivot_longer(2:5, names_to = "source")%>%
+  mutate(GDP_growth = ifelse(source%in% c("sim1_yhat", "sim2_yhat"), "GDPpc", "Consumption pc"),
+         simulation = ifelse(source%in% c("sim1_yhat", "sim1_chat"), "sim1", "sim2"))
+       
+ggplot(data_fig_G_long, mapping = aes(  x=value,y= source, color=simulation, linetype= GDP_growth))+
+ geom_boxplot()+
+  coord_flip()+
+ labs(linetype= "The growth rate", color= "The simulation")
+  
+
+```
+
+## R2: Question i) a linechart for yhat overtime Abdo
+```{r}
+ggplot(sim2_rounded, mapping = aes(x= year, y= yhat_sim2))+
+    geom_line()+
+  labs(x= "Year", y= "GDPpc growth rate", title = "Growth rate of GDP per capita as a function of time", subtitle = "DO THE Y-AXIS VALUES HAVE TO BE IN NATURAL LOG FORM???")
+```
+## R2: Question J) Describe and explain what you observe in this figure; link your explaination to your answers to literals c and h  Abdo
+
+###Describe
+
+The growth of GDP per capita was diminishing a faster rate until around 2037 (try to circle it red), then the growth rate started to decline at a lower rate and at times it almost did not change until it almost reached to 2% (the rate of technological growth). 
+
+The GDPpc growth rate is equal to the growth rate of output in efficiency units + the rate of technological progress. As the economy reaches towards it's steady state level the growth rate of output in efficiency units. As the number of workers increases overtime, the average number of machines per worker falls, hence, the fall in the growth rate of output in efficiency units.As the economy apporaches towards the steady state, the economy will grow close to the rate of technological growth rate which is at 2% as the graph shows.
+
+NOTE: I have not answered h yet, once I do I will answer the question in complete
+
+
 
 
 
@@ -266,6 +344,4 @@ cpc_df_rounded <- round(cpc_df, digits = 4)
 
 write_xlsx(list(Simulation1 = sim1_rounded, Simulation2 = sim2_rounded, Simulation3 = sim3_rounded, Evaluation = cpc_df_rounded), col_names = TRUE, "EGI_Assignment2_NuurVdVelGrotz.xlsx")
 ```
-
-
 
