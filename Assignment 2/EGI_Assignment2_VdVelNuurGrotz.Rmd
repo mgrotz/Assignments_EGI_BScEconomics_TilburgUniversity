@@ -92,7 +92,8 @@ for (i in 2:nrow(sim1)){
 #Making Graphs for First Simulation
 library(ggpmisc)
 ggplot(data = sim1, aes(x = year, y = yhat_sim1)) + 
-  geom_line(color = 'blue') + 
+  geom_line(color = 'blue') +
+  scale_y_continuous(labels = scales::percent) +
   labs(title = "Growth Rate of GDP per capita as a function of time", subtitle = "From 2020 - 2100", x = "Year", y = expression(hat(y)))
 
 ggsave("sim1_yhat.png", width = 8, height = 5)
@@ -101,7 +102,7 @@ ggsave("sim1_yhat.png", width = 8, height = 5)
 ## R2: Question d) A line chart of GDPpc  Mathieu
 
 ```{r}
-ggplot(sim1_rounded, mapping = aes(x= year, y= yhat_sim1))+
+ggplot(sim1, mapping = aes(x= year, y= yhat_sim1))+
     geom_line()+
   labs(x= "Year", y= "GDPpc growth rate", title = "Growth rate of GDP per capita as a function of time", subtitle = "DO THE Y-AXIS VALUES HAVE TO BE IN NATURAL LOG FORM???", caption= "From Sim1")+
   expand_limits(y=0)+
@@ -112,8 +113,7 @@ ggplot(sim1_rounded, mapping = aes(x= year, y= yhat_sim1))+
 
 The long-run growth rate of the model without climate is the same as with climate. Since technological growth rate is exogenous.
 ```{r}
-
-last_decade_yhat <- data.frame(without_climate_long_growth_rate= "??", yhat_sim1 =tail(sim1_rounded$yhat_sim1, n= 10), with_climate_long_growth_rate= g)
+last_decade_yhat <- data.frame(without_climate_long_growth_rate= "??", yhat_sim1 =tail(sim1$yhat_sim1, n= 10), with_climate_long_growth_rate= g)
 ```
 
 
@@ -191,7 +191,7 @@ I will first plot them together with the same color, but the line type will be d
 
 In these two graphs it is shown
 ```{r}
-data_fig_G_wide <- data.frame(year= sim1_rounded$year, sim1_yhat = sim1_rounded$yhat_sim1, sim1_chat = sim1_rounded$chat_sim1, sim2_yhat = sim2_rounded$yhat_sim2, sim2_chat = sim2_rounded$chat_sim2)
+data_fig_G_wide <- data.frame(year= sim1$year, sim1_yhat = sim1$yhat_sim1, sim1_chat = sim1$chat_sim1, sim2_yhat = sim2$yhat_sim2, sim2_chat = sim2$chat_sim2)
 ggplot(data_fig_G_wide)+
   geom_line(aes(x= year, y= sim1_yhat), color= "red")+
   geom_line(aes(x= year, sim2_yhat), color= "black")+
@@ -211,7 +211,7 @@ Since in this scenario the government has decided to approach the emission probl
 
 Consumption is buying goods from via a disposable income. Assuming that income tax rate is fixed thorughout the years, consumption increases proportionally to GDP in relative terms.
 ```{r}
-data_fig_G_long <- data.frame(year= sim1_rounded$year, sim1_yhat = sim1_rounded$yhat_sim1, sim1_chat = sim1_rounded$chat_sim1, sim2_yhat = sim2_rounded$yhat_sim2, sim2_chat = sim2_rounded$chat_sim2)%>%
+data_fig_G_long <- data.frame(year= sim1$year, sim1_yhat = sim1$yhat_sim1, sim1_chat = sim1$chat_sim1, sim2_yhat = sim2$yhat_sim2, sim2_chat = sim2$chat_sim2)%>%
   pivot_longer(2:5, names_to = "source")%>%
   mutate(GDP_growth = ifelse(source%in% c("sim1_yhat", "sim2_yhat"), "GDPpc", "Consumption pc"),
          simulation = ifelse(source%in% c("sim1_yhat", "sim1_chat"), "sim1", "sim2"))
@@ -226,9 +226,17 @@ ggplot(data_fig_G_long, mapping = aes(  x=value,y= source, color=simulation, lin
 
 ## R2: Question i) a linechart for yhat overtime Abdo
 ```{r}
-ggplot(sim2_rounded, mapping = aes(x= year, y= yhat_sim2))+
+ggplot(sim2, mapping = aes(x= year, y= yhat_sim2))+
     geom_line()+
   labs(x= "Year", y= "GDPpc growth rate", title = "Growth rate of GDP per capita as a function of time", subtitle = "DO THE Y-AXIS VALUES HAVE TO BE IN NATURAL LOG FORM???")
+
+library(ggpmisc)
+ggplot(data = sim2, aes(x = year, y = yhat_sim2)) + 
+  geom_line(color = 'blue') +
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = "Growth Rate of GDP per capita as a function of time", subtitle = "From 2020 - 2100", x = "Year", y = expression(hat(y)))
+
+ggsave("sim2_yhat.png", width = 8, height = 5)
 ```
 ## R2: Question J) Describe and explain what you observe in this figure; link your explaination to your answers to literals c and h  Abdo
 
@@ -313,7 +321,7 @@ for (i in 2:nrow(sim3)){
 }
 ```
 
-# Evaluation analysis
+# Evaluation of results
 
 ```{r}
 # Step 1: Have a df of each simulation's consumption per capita
@@ -343,6 +351,14 @@ cpc_df <- cpc_df%>%
     CPV_PV_c2_c1 = cumsum(PV_CV_diff_c2_c1),
     CPV_PV_c3_c1 = cumsum(PV_CV_diff_c3_c1))
 ```
+
+## Exercise l.
+
+```{r}
+ggplot(data = pivot_longer(cpc_df, cols = c(2, 3)), aes(x = year, y = value, color = name)) +
+  geom_line()
+```
+
 
 #Creating the Excel File:
 ```{r}
