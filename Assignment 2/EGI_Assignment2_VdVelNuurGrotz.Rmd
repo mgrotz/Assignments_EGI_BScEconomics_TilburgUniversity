@@ -87,6 +87,17 @@ for (i in 2:nrow(sim1)){
 
 
 ```
+
+```{r}
+#Making Graphs for First Simulation
+library(ggpmisc)
+ggplot(data = sim1, aes(x = year, y = yhat_sim1)) + 
+  geom_line(color = 'blue') + 
+  labs(title = "Growth Rate of GDP per capita as a function of time", subtitle = "From 2020 - 2100", x = "Year", y = expression(hat(y)))
+
+ggsave("sim1_yhat.png", width = 8, height = 5)
+
+```
 ## R2: Question d) A line chart of GDPpc  Mathieu
 
 ```{r}
