@@ -359,6 +359,29 @@ ggplot(data = pivot_longer(cpc_df, cols = c(2, 3)), aes(x = year, y = value, col
   geom_line()
 ```
 
+## Exercise m
+
+```{r}
+ggplot(data = pivot_longer(cpc_df, cols = c(5,7)), aes(x = year, y = value, color = name)) +
+  geom_line()
+```
+
+## Exercise o
+
+```{r}
+cpc_df %>%
+  filter(year %in% c(2040, 2060, 2080, 2100)) %>%
+  select(year, CPV_PV_c2_c1, CPV_PV_c3_c1) %>%
+  round(3)
+```
+
+Exercise q
+
+```{r}
+ggplot(data = pivot_longer(cpc_df, cols = c(9,10)), aes(x = year, y = value, color = name)) +
+  geom_line()
+```
+
 
 #Creating the Excel File:
 ```{r}
